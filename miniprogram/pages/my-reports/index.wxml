@@ -1,0 +1,55 @@
+<view class="my-reports-page">
+  <view class="page-shell">
+
+    <!-- 未登录提示 -->
+    <view wx:if="{{needLogin}}" class="state-box">
+      <view class="state-icon">🔒</view>
+      <view class="state-title">请先登录</view>
+      <view class="state-text">登录后才能查看你的举报记录</view>
+      <button class="login-btn" bindtap="handleGoLogin">返回去登录</button>
+    </view>
+
+    <!-- 加载中 -->
+    <view wx:elif="{{loading}}" class="state-box">
+      <view class="state-icon">⏳</view>
+      <view class="state-text">加载中...</view>
+    </view>
+
+    <!-- 空列表 -->
+    <view wx:elif="{{empty}}" class="state-box">
+      <view class="state-icon">📭</view>
+      <view class="state-title">暂无举报记录</view>
+      <view class="state-text">你还没有提交过任何隐患上报</view>
+    </view>
+
+    <!-- 列表 -->
+    <block wx:else>
+      <view class="summary-bar">共 {{records.length}} 条上报记录</view>
+
+      <view class="record-list">
+        <view class="record-card" wx:for="{{records}}" wx:key="id">
+
+          <!-- 卡片头部：标段 + 状态 + 时间 -->
+          <view class="card-hd">
+            <view class="section-badge">{{item.section}}</view>
+            <view class="status-tag {{item.statusCls}}">{{item.statusLabel}}</view>
+            <view class="card-time">{{item.time}}</view>
+          </view>
+
+          <!-- 描述 -->
+          <view wx:if="{{item.description}}" class="card-desc">{{item.description}}</view>
+          <view wx:else class="card-desc card-desc-empty">（未填写描述）</view>
+
+          <!-- 图片缩略图 -->
+          <view wx:if="{{item.imageCount}}" class="card-images"
+            bindtap="handlePreviewImages" data-images="{{item.images}}">
+            <image class="thumb" src="{{item.firstImage}}" mode="aspectFill"></image>
+            <view wx:if="{{item.imageCount > 1}}" class="thumb-more">+{{item.imageCount - 1}}</view>
+          </view>
+
+        </view>
+      </view>
+    </block>
+
+  </view>
+</view>

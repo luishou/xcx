@@ -1,0 +1,158 @@
+.my-reports-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(255, 153, 0, 0.14), transparent 34%),
+    radial-gradient(circle at top right, rgba(208, 2, 27, 0.12), transparent 28%),
+    linear-gradient(180deg, #fff8f3 0%, #f6f1eb 42%, #edf3f7 100%);
+}
+
+.page-shell {
+  padding: 24rpx 24rpx 56rpx;
+}
+
+/* ===== 状态占位 ===== */
+.state-box {
+  padding-top: 160rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.state-icon {
+  font-size: 80rpx;
+  line-height: 1;
+}
+
+.state-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.state-text {
+  font-size: 26rpx;
+  color: #9ca3af;
+}
+
+/* ===== 汇总栏 ===== */
+.summary-bar {
+  padding: 0 4rpx 20rpx;
+  font-size: 24rpx;
+  color: #9ca3af;
+}
+
+/* ===== 记录列表 ===== */
+.record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.record-card {
+  padding: 28rpx 24rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.07);
+}
+
+/* 卡片头部 */
+.card-hd {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  flex-wrap: wrap;
+}
+
+.section-badge {
+  padding: 6rpx 18rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #a30d1b 0%, #db5a22 100%);
+  color: #ffffff;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.status-tag {
+  padding: 6rpx 16rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.tag-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.tag-processing {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.tag-done {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.card-time {
+  margin-left: auto;
+  font-size: 22rpx;
+  color: #b6b6bd;
+  flex-shrink: 0;
+}
+
+/* 描述 */
+.card-desc {
+  margin-top: 18rpx;
+  font-size: 28rpx;
+  line-height: 1.65;
+  color: #374151;
+}
+
+.card-desc-empty {
+  color: #d1d5db;
+  font-style: italic;
+}
+
+/* 图片缩略图 */
+.card-images {
+  margin-top: 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.thumb {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 18rpx;
+  flex-shrink: 0;
+  background: #f3f4f6;
+}
+
+.thumb-more {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 18rpx;
+  background: rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.login-btn {
+  margin-top: 32rpx;
+  height: 84rpx;
+  padding: 0 48rpx;
+  border-radius: 24rpx;
+  border: none;
+  background: linear-gradient(135deg, #a30d1b 0%, #db5a22 100%);
+  color: #ffffff;
+  font-size: 28rpx;
+  font-weight: 700;
+  box-shadow: 0 10rpx 22rpx rgba(163, 13, 27, 0.24);
+}

@@ -1,0 +1,78 @@
+<view class="report-page">
+  <view class="page-shell report-shell">
+    <view class="user-card glass-card">
+      <image wx:if="{{currentUser.avatarUrl}}" class="user-avatar image-avatar" src="{{currentUser.avatarUrl}}" mode="aspectFill"></image>
+      <view wx:else class="user-avatar">👷</view>
+      <view class="user-meta">
+        <view class="user-name">{{currentUser.name}}</view>
+        <view class="user-subline">
+          中环中泰建设工地
+          <text class="section-pill">{{selectedSection}}</text>
+        </view>
+      </view>
+      <view class="switch-link" bindtap="handleSwitchSection">切换标段</view>
+    </view>
+
+    <view class="form-card glass-card">
+      <view class="block-head">
+        <view class="head-left">
+          <view class="head-dot"></view>
+          <text class="head-title">现场照片</text>
+          <text class="required-tag">必填</text>
+        </view>
+        <view class="head-count">{{images.length}} / 3 张</view>
+      </view>
+
+      <view class="image-list" wx:if="{{hasImages}}">
+        <view class="image-item" wx:for="{{images}}" wx:key="*this">
+          <image class="image-thumb" src="{{item}}" mode="aspectFill"></image>
+          <view class="image-del" data-index="{{index}}" bindtap="handleDeleteImage">×</view>
+        </view>
+      </view>
+
+      <view class="upload-box" wx:if="{{canAddMoreImages}}" bindtap="handleChooseImage">
+        <view class="upload-icon">📷</view>
+        <view class="upload-title">点击拍照 / 选图</view>
+        <view class="upload-subtitle">支持相机拍摄或相册选择，最多 3 张</view>
+      </view>
+    </view>
+
+    <view class="form-card glass-card">
+      <view class="block-head">
+        <view class="head-left">
+          <view class="head-dot"></view>
+          <text class="head-title">隐患描述</text>
+          <text class="optional-tag">可选</text>
+        </view>
+      </view>
+      <textarea
+        class="desc-textarea"
+        value="{{description}}"
+        maxlength="30"
+        placeholder="请简单描述隐患情况，例如：3号楼楼梯口护栏松动"
+        bindinput="handleDescriptionInput"
+      />
+      <view class="desc-count {{descriptionCountClass}}">{{descriptionLength}} / 30 字</view>
+    </view>
+
+    <view class="tips-box">
+      <view class="tips-icon">💡</view>
+      <view class="tips-text">上报隐患是保护自己和工友安全的重要行动，管理员会在 24 小时内跟进处理。</view>
+    </view>
+  </view>
+
+  <view class="bottom-bar">
+    <button class="submit-btn" disabled="{{submitDisabled}}" bindtap="handleSubmit">{{submitText}}</button>
+  </view>
+
+  <view class="success-mask" wx:if="{{showSuccess}}">
+    <view class="success-card">
+      <view class="success-icon">✅</view>
+      <view class="success-title">上报成功！</view>
+      <view class="success-copy">感谢你的安全守护，本次隐患已经进入后台待处理。</view>
+      <view class="success-note">管理员将在 24 小时内跟进处理本次隐患</view>
+      <button class="success-btn-primary" bindtap="handleViewMyReports">查看我的举报</button>
+      <button class="success-btn-secondary" bindtap="handleCloseSuccess">继续上报</button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,15 @@
+{
+  "appid": "wx5b807a3ae96f8aaf",
+  "projectname": "hazard-miniapp",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "miniprogram/",
+  "srcMiniprogramRoot": "miniprogram/",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": false
+  },
+  "condition": {}
+}

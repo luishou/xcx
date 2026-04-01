@@ -1,0 +1,73 @@
+.section-page {
+  padding-top: 60rpx;
+}
+
+.section-card {
+  padding: 42rpx 32rpx;
+  background: linear-gradient(180deg, rgba(255, 253, 252, 0.96), rgba(255, 255, 255, 0.96));
+}
+
+.section-title {
+  text-align: center;
+  font-size: 42rpx;
+  font-weight: 800;
+  color: #1f2937;
+}
+
+.section-subtitle {
+  margin-top: 16rpx;
+  text-align: center;
+  font-size: 26rpx;
+  line-height: 1.7;
+  color: #6b7280;
+}
+
+.section-grid {
+  margin-top: 36rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.section-item {
+  padding: 28rpx;
+  border-radius: 28rpx;
+  border: 2rpx solid #ebe6e4;
+  background: linear-gradient(180deg, #fff 0%, #fbf8f7 100%);
+}
+
+.section-item-active {
+  border-color: rgba(208, 2, 27, 0.28);
+  background: linear-gradient(180deg, #fff5f3 0%, #fff0ed 100%);
+  box-shadow: 0 14rpx 30rpx rgba(208, 2, 27, 0.12);
+}
+
+.section-code {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #d0021b;
+}
+
+.section-name {
+  margin-top: 10rpx;
+  font-size: 28rpx;
+  color: #374151;
+}
+
+.section-state {
+  margin-top: 18rpx;
+  display: inline-flex;
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(208, 2, 27, 0.08);
+  color: #9f0014;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.section-note {
+  margin-top: 28rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: #9ca3af;
+}

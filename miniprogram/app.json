@@ -1,0 +1,17 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/section/index",
+    "pages/report/index",
+    "pages/my-reports/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "隐患随手拍",
+    "navigationBarBackgroundColor": "#b30a1e",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f6f3f2",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

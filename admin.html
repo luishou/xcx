@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>隐患随手拍 · 管理后台</title>
+  <style>
+    :root {
+      --primary: #d0021b;
+      --primary-dark: #9f0014;
+      --accent: #ff7a00;
+      --text-main: #1f2937;
+      --text-sub: #6b7280;
+      --surface: rgba(255,255,255,0.92);
+      --surface-strong: #ffffff;
+      --line-soft: rgba(208,2,27,0.10);
+      --shadow-soft: 0 18px 45px rgba(103, 22, 28, 0.10);
+      --shadow-card: 0 14px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255,122,0,0.16), transparent 28%),
+        radial-gradient(circle at top right, rgba(208,2,27,0.12), transparent 24%),
+        linear-gradient(180deg, #fff9f6 0%, #f7f4f3 34%, #eef3f8 100%);
+      min-height: 100vh;
+      color: var(--text-main);
+    }
+    .hidden { display: none !important; }
+
+    .topbar {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 44%, #ef4444 100%);
+      padding: 0 32px;
+      height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 12px 28px rgba(208,2,27,0.20);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .topbar-icon {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+    .topbar-icon svg { width: 20px; height: 20px; fill: #fff; }
+    .topbar-title {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+    .topbar-sub {
+      color: rgba(255,255,255,0.70);
+      font-size: 13px;
+      margin-left: 4px;
+    }
+    .btn-goto-report {
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.24);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s, transform 0.2s;
+      backdrop-filter: blur(10px);
+    }
+    .btn-goto-report:hover {
+      background: rgba(255,255,255,0.22);
+      transform: translateY(-1px);
+    }
+
+    .tab-bar {
+      background: rgba(255,255,255,0.88);
+      padding: 0 32px;
+      display: flex;
+      border-bottom: 1px solid rgba(208,2,27,0.08);
+      gap: 0;
+      backdrop-filter: blur(14px);
+    }
+    .tab-btn {
+      padding: 16px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #7b7b86;
+      border: none;
+      background: none;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab-btn.active { color: var(--primary); }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 20px; right: 20px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-dark), var(--accent));
+      border-radius: 999px;
+    }
+    .tab-count {
+      background: linear-gradient(135deg, var(--primary), #ef4444);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 999px;
+      min-width: 18px;
+      text-align: center;
+      display: none;
+      box-shadow: 0 8px 16px rgba(208,2,27,0.18);
+    }
+    .tab-count.visible { display: inline-block; }
+
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 24px 56px;
+    }
+    .entry-shell {
+      min-height: calc(100vh - 40px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .entry-panel {
+      width: min(100%, 1040px);
+      border-radius: 32px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,251,249,0.96));
+      border: 1px solid rgba(255,255,255,0.76);
+      box-shadow: 0 30px 70px rgba(15, 23, 42, 0.10);
+    }
+    .entry-hero {
+      padding: 34px 36px 30px;
+      color: #fff;
+      background:
+        radial-gradient(circle at right top, rgba(255,255,255,0.18), transparent 28%),
+        linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 44%, #ef4444 74%, var(--accent) 100%);
+    }
+    .entry-kicker {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.18);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+    }
+    .entry-title {
+      margin-top: 18px;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+    }
+    .entry-subtitle {
+      margin-top: 10px;
+      max-width: 680px;
+      font-size: 15px;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.84);
+    }
+    .entry-grid {
+      padding: 28px 32px 34px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+    .entry-card {
+      padding: 24px 22px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,248,246,0.96));
+      border: 1px solid rgba(208,2,27,0.10);
+      box-shadow: var(--shadow-card);
+      transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+    }
+    .entry-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 38px rgba(15, 23, 42, 0.12);
+      border-color: rgba(208,2,27,0.20);
+    }
+    .entry-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .entry-code {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--primary);
+    }
+    .entry-chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(208,2,27,0.08);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+    }
+    .entry-copy {
+      margin-top: 12px;
+      min-height: 48px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #5b6472;
+    }
+    .entry-action {
+      margin-top: 18px;
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 14px 24px rgba(208,2,27,0.16);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .overview-panel {
+      margin-bottom: 22px;
+      padding: 22px 22px 18px;
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,251,249,0.94));
+      border: 1px solid rgba(255,255,255,0.72);
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(10px);
+    }
+    .overview-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .overview-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: #1f2937;
+    }
+    .overview-sub {
+      margin-top: 6px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #7b7b86;
+    }
+    .overview-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(208,2,27,0.08);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .overview-grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .overview-item {
+      padding: 16px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #fff 0%, #fcf7f5 100%);
+      border: 1px solid rgba(208,2,27,0.08);
+    }
+    .overview-label {
+      font-size: 12px;
+      color: #8e8e95;
+    }
+    .overview-value {
+      margin-top: 8px;
+      font-size: 28px;
+      font-weight: 900;
+      color: #1f2937;
+      line-height: 1;
+    }
+    .overview-value.warn { color: var(--accent); }
+    .overview-value.danger { color: var(--primary); }
+    .overview-value.good { color: #07c160; }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .filter-btns {
+      display: flex;
+      gap: 8px;
+    }
+    .filter-btn {
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 1px solid #ebe6e4;
+      background: rgba(255,255,255,0.82);
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    }
+    .filter-btn.active {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 12px 22px rgba(208,2,27,0.18);
+    }
+    .refresh-btn {
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid #ebe6e4;
+      background: rgba(255,255,255,0.82);
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    }
+    .refresh-btn:hover {
+      border-color: rgba(208,2,27,0.24);
+      color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .record-list { display: flex; flex-direction: column; gap: 16px; }
+    .record-card {
+      background: var(--surface);
+      border-radius: 22px;
+      padding: 18px 20px;
+      border: 1px solid rgba(255,255,255,0.68);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      transition: transform 0.18s, box-shadow 0.18s;
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+    }
+    .record-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 38px rgba(15, 23, 42, 0.12);
+    }
+
+    .record-thumbs {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .record-thumb {
+      width: 78px; height: 78px;
+      border-radius: 14px;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: 1px solid rgba(255,255,255,0.65);
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.10);
+    }
+    .record-thumb:hover {
+      transform: scale(1.05);
+      box-shadow: 0 16px 28px rgba(15, 23, 42, 0.16);
+    }
+    .thumb-more {
+      width: 78px; height: 78px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff8f6 0%, #f7f2f0 100%);
+      border: 1px solid #ebe6e4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: #8e8e95;
+      cursor: pointer;
+    }
+
+    .record-body { flex: 1; min-width: 0; }
+    .record-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .section-badge {
+      background: linear-gradient(180deg, #fff4f2 0%, #ffeceb 100%);
+      border: 1px solid rgba(208,2,27,0.16);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+      letter-spacing: 1px;
+    }
+    .record-id {
+      font-size: 12px;
+      color: #b7b7bf;
+    }
+    .record-photo-count {
+      margin-left: auto;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .record-desc {
+      font-size: 14px;
+      color: #374151;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+    .record-desc.empty { color: #b3b3bb; font-style: italic; }
+    .record-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #8e8e95;
+    }
+    .meta-icon { font-size: 13px; }
+    .record-open {
+      margin-left: auto;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(208,2,27,0.08);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid transparent;
+    }
+    .status-pill.pending {
+      color: #ff7a00;
+      border-color: #ffd9b0;
+      background: #fff8f0;
+    }
+    .status-pill.progress {
+      color: #1677ff;
+      border-color: #b0d4ff;
+      background: #f0f7ff;
+    }
+    .status-pill.done {
+      color: #07c160;
+      border-color: #b0e8c7;
+      background: #f0fdf4;
+    }
+
+    .status-select {
+      border: 1px solid #e7e4e2;
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+      background: #fff;
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 26px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.04);
+    }
+    .status-select:focus {
+      border-color: rgba(208,2,27,0.24);
+      box-shadow: 0 0 0 4px rgba(208,2,27,0.08);
+    }
+    .status-select[data-status="待处理"] { color: #ff7a00; border-color: #ffd9b0; background-color: #fff8f0; }
+    .status-select[data-status="处理中"] { color: #1677ff; border-color: #b0d4ff; background-color: #f0f7ff; }
+    .status-select[data-status="已完成"] { color: #07c160; border-color: #b0e8c7; background-color: #f0fdf4; }
+
+    .empty-state {
+      text-align: center;
+      padding: 86px 24px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.68);
+      box-shadow: var(--shadow-card);
+    }
+    .empty-icon { font-size: 56px; margin-bottom: 16px; }
+    .empty-title { font-size: 17px; font-weight: 700; color: #374151; margin-bottom: 8px; }
+    .empty-sub { font-size: 14px; color: #9ca3af; }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      cursor: zoom-out;
+      animation: fadeIn 0.2s ease;
+    }
+    .lightbox.visible { display: flex; }
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 88vh;
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      animation: scaleIn 0.2s ease;
+    }
+    .lightbox-close {
+      position: fixed;
+      top: 20px; right: 24px;
+      color: #fff;
+      font-size: 32px;
+      cursor: pointer;
+      opacity: 0.84;
+      line-height: 1;
+    }
+    .lightbox-close:hover { opacity: 1; }
+    .detail-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.56);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 900;
+      padding: 24px;
+    }
+    .detail-overlay.visible { display: flex; }
+    .detail-card {
+      width: min(100%, 760px);
+      max-height: 88vh;
+      overflow: auto;
+      background: linear-gradient(180deg, #fff 0%, #fffaf8 100%);
+      border-radius: 28px;
+      box-shadow: 0 28px 80px rgba(15,23,42,0.24);
+      padding: 26px 24px 22px;
+    }
+    .detail-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .detail-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #1f2937;
+    }
+    .detail-sub {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #8e8e95;
+    }
+    .detail-close {
+      border: none;
+      background: rgba(15,23,42,0.06);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 22px;
+      color: #4b5563;
+      flex-shrink: 0;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .detail-item {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid rgba(208,2,27,0.08);
+    }
+    .detail-label {
+      font-size: 12px;
+      color: #8e8e95;
+    }
+    .detail-value {
+      margin-top: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1f2937;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+    .detail-section {
+      margin-top: 18px;
+    }
+    .detail-section-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #374151;
+      margin-bottom: 12px;
+    }
+    .detail-desc {
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid rgba(208,2,27,0.08);
+      font-size: 14px;
+      line-height: 1.8;
+      color: #374151;
+    }
+    .detail-desc.empty { color: #b3b3bb; font-style: italic; }
+    .detail-images {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .detail-image {
+      width: 120px;
+      height: 120px;
+      border-radius: 16px;
+      object-fit: cover;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(15,23,42,0.10);
+    }
+    .detail-actions {
+      margin-top: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .detail-status-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .detail-save {
+      padding: 11px 18px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 14px 24px rgba(208,2,27,0.16);
+    }
+    .detail-save[disabled] {
+      background: #d7d7da;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,250,248,0.94));
+      border-radius: 22px;
+      padding: 22px 20px;
+      border: 1px solid rgba(255,255,255,0.7);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      backdrop-filter: blur(8px);
+    }
+    .stat-label {
+      font-size: 13px;
+      color: #8e8e95;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .stat-value {
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .stat-value.red { color: var(--primary); }
+    .stat-value.orange { color: var(--accent); }
+    .stat-value.blue { color: #1677ff; }
+    .stat-value.green { color: #07c160; }
+    .stat-sub {
+      font-size: 12px;
+      color: #b4b4bc;
+    }
+
+    .stats-section-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #374151;
+      margin-bottom: 14px;
+      padding-left: 4px;
+    }
+
+    .section-stat-row {
+      background: rgba(255,255,255,0.92);
+      border-radius: 18px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.68);
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(8px);
+    }
+    .section-stat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .section-stat-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-stat-count {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .progress-bar {
+      height: 8px;
+      background: #f0f0f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #ff6b4a);
+      border-radius: 999px;
+      transition: width 0.6s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    @media (max-width: 640px) {
+      .topbar { padding: 0 16px; }
+      .tab-bar { padding: 0 16px; }
+      .main { padding: 16px 12px 48px; }
+      .record-card { flex-direction: column; }
+      .record-thumbs { flex-wrap: wrap; }
+      .topbar-sub { display: none; }
+      .entry-hero { padding: 28px 24px 24px; }
+      .entry-grid { padding: 20px 18px 24px; }
+      .overview-panel { padding: 18px 16px 16px; }
+      .overview-title { font-size: 19px; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .detail-card { padding: 20px 18px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 后台入口（先选标段） -->
+<div class="main entry-shell" id="admin-entry">
+  <div class="entry-panel">
+    <div class="entry-hero">
+      <div class="entry-kicker">SAFETY ADMIN CONSOLE</div>
+      <div class="entry-title">隐患随手拍管理后台</div>
+      <div class="entry-subtitle">按标段进入后台后，可查看当前标段上报记录、待处理数量和状态分布，并直接在列表中推进处理进度。</div>
+    </div>
+    <div class="entry-grid">
+      <div class="entry-card">
+        <div class="entry-card-top">
+          <div class="entry-code">TJ01</div>
+          <div class="entry-chip">一标段</div>
+        </div>
+        <div class="entry-copy">适合查看 TJ01 标段的隐患上报、待处理积压和近 7 天上报趋势。</div>
+        <button class="entry-action" type="button" onclick="enterAdmin('TJ01')">进入 TJ01 管理后台</button>
+      </div>
+      <div class="entry-card">
+        <div class="entry-card-top">
+          <div class="entry-code">TJ02</div>
+          <div class="entry-chip">二标段</div>
+        </div>
+        <div class="entry-copy">适合查看 TJ02 标段的隐患上报、处理状态和现场整改闭环情况。</div>
+        <button class="entry-action" type="button" onclick="enterAdmin('TJ02')">进入 TJ02 管理后台</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="admin-app" class="hidden">
+  <!-- 顶部导航 -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L4 5.5v6.5c0 4.77 3.39 9.23 8 10.3C16.61 21.23 20 16.77 20 12V5.5L12 2z"/></svg>
+      </div>
+      <span class="topbar-title">隐患随手拍</span>
+      <span class="topbar-sub">· 管理后台</span>
+      <span class="section-badge" id="current-section-badge">TJ01</span>
+    </div>
+    <button class="btn-goto-report" type="button" onclick="showMiniProgramHint()">
+      📱 小程序上报
+    </button>
+  </div>
+
+  <!-- Tab 栏 -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('records')">
+      📋 待处理与记录
+      <span class="tab-count" id="tab-count-records"></span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('stats')">
+      📊 当前标段报表
+    </button>
+  </div>
+
+  <!-- 主内容 -->
+  <div class="main">
+    <div class="overview-panel">
+      <div class="overview-top">
+        <div>
+          <div class="overview-title" id="overview-title">TJ01 标段安全态势</div>
+          <div class="overview-sub" id="overview-sub">正在等待载入标段数据，请稍候片刻。</div>
+        </div>
+        <div class="overview-tag" id="overview-tag">接口：准备中</div>
+      </div>
+      <div class="overview-grid">
+        <div class="overview-item">
+          <div class="overview-label">累计上报</div>
+          <div class="overview-value" id="overview-total">0</div>
+        </div>
+        <div class="overview-item">
+          <div class="overview-label">近 7 天</div>
+          <div class="overview-value" id="overview-week">0</div>
+        </div>
+        <div class="overview-item">
+          <div class="overview-label">待处理</div>
+          <div class="overview-value danger" id="overview-pending">0</div>
+        </div>
+        <div class="overview-item">
+          <div class="overview-label">处理中</div>
+          <div class="overview-value warn" id="overview-progress">0</div>
+        </div>
+        <div class="overview-item">
+          <div class="overview-label">已完成</div>
+          <div class="overview-value good" id="overview-done">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 上报记录 Tab ===== -->
+    <div class="tab-panel active" id="panel-records">
+      <div class="filter-bar">
+        <div class="stats-section-title" style="margin:0;">当前标段记录</div>
+        <button class="refresh-btn" onclick="loadRecords()">
+          🔄 刷新
+        </button>
+      </div>
+      <div class="record-list" id="record-list">
+        <!-- 动态渲染 -->
+      </div>
+    </div>
+
+    <!-- ===== 数据统计 Tab ===== -->
+    <div class="tab-panel" id="panel-stats">
+      <div class="stats-grid" id="stats-grid">
+        <!-- 动态渲染 -->
+      </div>
+      <p class="stats-section-title">当前标段状态分布</p>
+      <div id="stats-status">
+        <!-- 动态渲染 -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 图片放大弹窗 -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close">×</span>
+  <img id="lightbox-img" src="" alt="隐患图片" onclick="event.stopPropagation()" />
+</div>
+
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetailModal()">
+  <div class="detail-card" onclick="event.stopPropagation()">
+    <div class="detail-top">
+      <div>
+        <div class="detail-title" id="detail-title">隐患详情</div>
+        <div class="detail-sub" id="detail-sub">点击记录后可查看完整信息并更新状态</div>
+      </div>
+      <button class="detail-close" type="button" onclick="closeDetailModal()">×</button>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-label">记录编号</div>
+        <div class="detail-value" id="detail-id">-</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">所属标段</div>
+        <div class="detail-value" id="detail-section">-</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">上报人</div>
+        <div class="detail-value" id="detail-worker">-</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">上报时间</div>
+        <div class="detail-value" id="detail-time">-</div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">隐患描述</div>
+      <div class="detail-desc" id="detail-desc">-</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">现场图片</div>
+      <div class="detail-images" id="detail-images"></div>
+    </div>
+
+    <div class="detail-actions">
+      <div class="detail-status-wrap">
+        <span class="detail-label">处理状态</span>
+        <select class="status-select" id="detail-status-select" data-status="待处理">
+          <option>待处理</option>
+          <option>处理中</option>
+          <option>已完成</option>
+        </select>
+      </div>
+      <button class="detail-save" type="button" id="detail-save-btn" onclick="saveDetailStatus()">保存处理状态</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_BASE = (() => {
+    const origin = window.location.origin;
+    if (origin && origin !== 'null' && /^https?:/.test(origin)) {
+      return origin;
+    }
+    return 'http://localhost:3300';
+  })();
+
+  let sectionRecords = [];
+  let currentSection = '';
+  let currentStats = {
+    total: 0,
+    thisWeek: 0,
+    pending: 0,
+    inProgress: 0,
+    done: 0
+  };
+  let selectedRecordId = null;
+
+  // ── 进入后台（选定标段） ──
+  function enterAdmin(section) {
+    currentSection = section;
+    document.getElementById('current-section-badge').textContent = section;
+    document.getElementById('admin-entry').classList.add('hidden');
+    document.getElementById('admin-app').classList.remove('hidden');
+    renderOverview('正在加载标段数据');
+    loadRecords();
+  }
+
+  // ── 加载数据 ──
+  async function loadRecords() {
+    renderLoading();
+
+    try {
+      const [recordsRes, statsRes] = await Promise.all([
+        apiGet(`/api/admin/records?section=${encodeURIComponent(currentSection)}`),
+        apiGet(`/api/admin/stats?section=${encodeURIComponent(currentSection)}`)
+      ]);
+
+      sectionRecords = recordsRes.records || [];
+      currentStats = statsRes.stats || currentStats;
+      renderOverview();
+      renderList();
+      renderStats();
+      updateTabCount();
+    } catch (error) {
+      renderOverview(error.message || '加载失败，请稍后重试');
+      renderError(error.message || '加载失败，请稍后重试');
+    }
+  }
+
+  // ── Tab 切换 ──
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', ['records', 'stats'][i] === tab);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+
+  // ── 渲染记录列表 ──
+  function renderList() {
+    const list = document.getElementById('record-list');
+    if (sectionRecords.length === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🗂️</div>
+          <div class="empty-title">${currentSection} 暂无上报记录</div>
+          <div class="empty-sub">工友提交隐患后，记录将显示在这里</div>
+        </div>
+      `;
+      return;
+    }
+
+    list.innerHTML = sectionRecords.map((r) => {
+      const thumbsHtml = r.images.slice(0, 2).map(src =>
+        `<img class="record-thumb" src="${src}" alt="图片" onclick="event.stopPropagation(); openLightbox('${src}')" />`
+      ).join('');
+      const moreHtml = r.images.length > 2
+        ? `<div class="thumb-more" onclick="event.stopPropagation(); openLightbox('${r.images[2]}')">+${r.images.length - 2}</div>`
+        : '';
+      const descHtml = r.description
+        ? `<div class="record-desc">${escHtml(r.description)}</div>`
+        : `<div class="record-desc empty">（无文字描述）</div>`;
+
+      return `
+        <div class="record-card" onclick="openDetailModal(${r.id})">
+          <div class="record-thumbs">
+            ${thumbsHtml}${moreHtml}
+          </div>
+          <div class="record-body">
+            <div class="record-top">
+              <span class="section-badge">${r.section}</span>
+              <span class="record-id">#${String(r.id).slice(-6)}</span>
+              <span class="record-photo-count">共 ${r.images.length} 张图片</span>
+            </div>
+            ${descHtml}
+            <div class="record-meta">
+              <span class="meta-item"><span class="meta-icon">👷</span>${escHtml(r.worker || '工友')}</span>
+              <span class="meta-item"><span class="meta-icon">🕐</span>${r.time}</span>
+              <span class="status-pill ${statusClass(r.status)}">${r.status}</span>
+              <span class="record-open">查看详情</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ── 更新状态 ──
+  async function updateStatus(id, newStatus) {
+
+    try {
+      await apiRequest(`/api/admin/reports/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      const target = sectionRecords.find(item => item.id === id);
+      if (target) {
+        target.status = newStatus;
+      }
+      currentStats = calcStats(sectionRecords);
+      renderOverview();
+      renderList();
+      renderStats();
+      updateTabCount();
+    } catch (error) {
+      await loadRecords();
+      throw error;
+    }
+  }
+
+  // ── 更新 Tab 角标 ──
+  function updateTabCount() {
+    const pending = currentStats.pending || 0;
+    const el = document.getElementById('tab-count-records');
+    el.textContent = pending;
+    el.classList.toggle('visible', pending > 0);
+  }
+
+  // ── 渲染统计 ──
+  function renderStats() {
+    const total = currentStats.total || 0;
+    const thisWeek = currentStats.thisWeek || 0;
+    const pending = currentStats.pending || 0;
+    const inProgress = currentStats.inProgress || 0;
+    const done = currentStats.done || 0;
+
+    // 数字卡片
+    document.getElementById('stats-grid').innerHTML = `
+      <div class="stat-card">
+        <span class="stat-label">📋 ${currentSection} 总上报数</span>
+        <span class="stat-value red">${total}</span>
+        <span class="stat-sub">当前标段累计记录</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">📅 本周上报</span>
+        <span class="stat-value orange">${thisWeek}</span>
+        <span class="stat-sub">当前标段近 7 天提交</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">⏳ 待处理</span>
+        <span class="stat-value orange">${pending}</span>
+        <span class="stat-sub">当前标段待跟进</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">✅ 已完成</span>
+        <span class="stat-value green">${done}</span>
+        <span class="stat-sub">当前标段已闭环</span>
+      </div>
+    `;
+
+    // 状态分布
+    const statusItems = [
+      { label: '待处理', count: pending, color: '#FF6B00', bg: '#fff8f0', border: '#ffd9b0' },
+      { label: '处理中', count: inProgress, color: '#1677ff', bg: '#f0f7ff', border: '#b0d4ff' },
+      { label: '已完成', count: done, color: '#07c160', bg: '#f0fdf4', border: '#b0e8c7' },
+    ];
+    const maxStatus = Math.max(...statusItems.map(s => s.count), 1);
+    document.getElementById('stats-status').innerHTML = statusItems.map(s => {
+      const pct = Math.round((s.count / maxStatus) * 100);
+      return `
+        <div class="section-stat-row">
+          <div class="section-stat-header">
+            <span class="section-stat-name" style="color:${s.color}">${s.label}</span>
+            <span class="section-stat-count" style="color:${s.color}">${s.count} 条</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:${s.count > 0 ? pct : 0}%;background:${s.color}"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderOverview(errorMessage = '') {
+    document.getElementById('overview-title').textContent = `${currentSection} 标段安全态势`;
+    document.getElementById('overview-sub').textContent = errorMessage
+      ? `当前未能同步到最新数据：${errorMessage}`
+      : `当前展示 ${currentSection} 标段的累计上报、待处理数量和闭环情况。`;
+    document.getElementById('overview-tag').textContent = `接口：${API_BASE}`;
+    document.getElementById('overview-total').textContent = currentStats.total || 0;
+    document.getElementById('overview-week').textContent = currentStats.thisWeek || 0;
+    document.getElementById('overview-pending').textContent = currentStats.pending || 0;
+    document.getElementById('overview-progress').textContent = currentStats.inProgress || 0;
+    document.getElementById('overview-done').textContent = currentStats.done || 0;
+  }
+
+  function openDetailModal(id) {
+    const record = sectionRecords.find(item => item.id === id);
+    if (!record) return;
+
+    selectedRecordId = id;
+    document.getElementById('detail-title').textContent = `隐患详情 #${String(record.id).slice(-6)}`;
+    document.getElementById('detail-sub').textContent = '请确认记录信息后，再切换当前处理状态。';
+    document.getElementById('detail-id').textContent = `#${String(record.id).slice(-6)}`;
+    document.getElementById('detail-section').textContent = record.section;
+    document.getElementById('detail-worker').textContent = record.worker || '工友';
+    document.getElementById('detail-time').textContent = record.time;
+
+    const descEl = document.getElementById('detail-desc');
+    descEl.textContent = record.description || '（无文字描述）';
+    descEl.classList.toggle('empty', !record.description);
+
+    const imagesEl = document.getElementById('detail-images');
+    if (!record.images.length) {
+      imagesEl.innerHTML = '<div class="detail-desc empty" style="width:100%;">暂无现场图片</div>';
+    } else {
+      imagesEl.innerHTML = record.images.map((src) =>
+        `<img class="detail-image" src="${src}" alt="隐患图片" onclick="openLightbox('${src}')" />`
+      ).join('');
+    }
+
+    const select = document.getElementById('detail-status-select');
+    select.value = record.status;
+    select.dataset.status = record.status;
+    document.getElementById('detail-overlay').classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDetailModal() {
+    document.getElementById('detail-overlay').classList.remove('visible');
+    document.body.style.overflow = '';
+    selectedRecordId = null;
+  }
+
+  async function saveDetailStatus() {
+    if (!selectedRecordId) return;
+
+    const saveBtn = document.getElementById('detail-save-btn');
+    const select = document.getElementById('detail-status-select');
+    const newStatus = select.value;
+    saveBtn.disabled = true;
+    saveBtn.textContent = '保存中...';
+
+    try {
+      await updateStatus(selectedRecordId, newStatus);
+      closeDetailModal();
+    } catch (error) {
+      alert(error.message || '状态更新失败');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = '保存处理状态';
+    }
+  }
+
+  function renderLoading() {
+    document.getElementById('record-list').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⏳</div>
+        <div class="empty-title">正在加载 ${currentSection} 数据</div>
+        <div class="empty-sub">请稍候片刻...</div>
+      </div>
+    `;
+    document.getElementById('stats-grid').innerHTML = '';
+    document.getElementById('stats-status').innerHTML = '';
+  }
+
+  function renderError(message) {
+    document.getElementById('record-list').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <div class="empty-title">数据加载失败</div>
+        <div class="empty-sub">${escHtml(message)}</div>
+      </div>
+    `;
+    document.getElementById('stats-grid').innerHTML = '';
+    document.getElementById('stats-status').innerHTML = '';
+  }
+
+  function calcStats(records) {
+    const stats = {
+      total: records.length,
+      thisWeek: 0,
+      pending: 0,
+      inProgress: 0,
+      done: 0
+    };
+
+    const weekAgo = Date.now() - 7 * 24 * 3600 * 1000;
+    records.forEach((record) => {
+      if (new Date(record.time).getTime() >= weekAgo) {
+        stats.thisWeek += 1;
+      }
+
+      if (record.status === '待处理') stats.pending += 1;
+      if (record.status === '处理中') stats.inProgress += 1;
+      if (record.status === '已完成') stats.done += 1;
+    });
+
+    return stats;
+  }
+
+  async function apiGet(url) {
+    const response = await fetch(`${API_BASE}${url}`);
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || '请求失败');
+    }
+    return data;
+  }
+
+  async function apiRequest(url, options = {}) {
+    const response = await fetch(`${API_BASE}${url}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      ...options
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || '请求失败');
+    }
+    return data;
+  }
+
+  function showMiniProgramHint() {
+    alert('用户端已切换为微信小程序，请在微信中打开小程序进行隐患上报。');
+  }
+
+  function statusClass(status) {
+    if (status === '待处理') return 'pending';
+    if (status === '处理中') return 'progress';
+    return 'done';
+  }
+
+  // ── 图片放大 ──
+  function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('visible');
+    document.body.style.overflow = document.getElementById('detail-overlay').classList.contains('visible') ? 'hidden' : '';
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (document.getElementById('lightbox').classList.contains('visible')) {
+        closeLightbox();
+      } else if (document.getElementById('detail-overlay').classList.contains('visible')) {
+        closeDetailModal();
+      }
+    }
+  });
+
+  // ── HTML 转义 ──
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // 支持从 URL 直接指定标段：admin.html?section=TJ01
+  const querySection = new URLSearchParams(window.location.search).get('section');
+  if (querySection === 'TJ01' || querySection === 'TJ02') {
+    enterAdmin(querySection);
+  }
+</script>
+
+</body>
+</html>

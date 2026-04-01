@@ -1,0 +1,106 @@
+<view class="home-page">
+  <view class="page-shell home-shell">
+    <view class="hero-panel">
+      <view class="hero-top">
+        <view class="hero-tag">中环中泰建设</view>
+        <view class="hero-state">{{statusText}}</view>
+      </view>
+
+      <view class="hero-badge">施工现场安全直报平台</view>
+
+      <view class="hero-mark">
+        <view class="hero-mark-ring"></view>
+        <view class="hero-mark-core">安</view>
+      </view>
+
+      <view class="hero-title">隐患随手拍</view>
+      <view class="hero-slogan">看见问题，马上上报</view>
+      <view class="hero-desc">{{welcomeText}}</view>
+
+      <view class="metric-grid">
+        <view class="metric-card" wx:for="{{metrics}}" wx:key="label">
+          <view class="metric-value">{{item.value}}</view>
+          <view class="metric-label">{{item.label}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-card">
+      <view class="section-eyebrow">为什么用它</view>
+      <view class="section-title">让上报变成现场习惯</view>
+      <view class="feature-grid">
+        <view class="feature-card" wx:for="{{features}}" wx:key="title">
+          <view class="feature-icon">{{item.icon}}</view>
+          <view class="feature-title">{{item.title}}</view>
+          <view class="feature-text">{{item.text}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-card flow-card">
+      <view class="section-eyebrow">怎么上报</view>
+      <view class="section-title">三步完成一次隐患提交</view>
+      <view class="flow-list">
+        <view class="flow-item" wx:for="{{steps}}" wx:key="title">
+          <view class="flow-index">{{item.index}}</view>
+          <view class="flow-body">
+            <view class="flow-title">{{item.title}}</view>
+            <view class="flow-text">{{item.text}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="cta-panel">
+      <view class="cta-title">进入小程序开始上报</view>
+      <view class="cta-subtitle">授权后选择标段，即可提交现场图片和隐患描述</view>
+      <button class="auth-btn" bindtap="handleAuthTap" loading="{{loading}}" disabled="{{loading}}">{{buttonText}}</button>
+      <view wx:if="{{isLoggedIn}}" class="my-reports-entry" bindtap="handleMyReportsTap">
+        <text class="my-reports-entry-icon">📋</text>
+        <text class="my-reports-entry-text">查看我的举报记录</text>
+        <text class="my-reports-entry-arrow">›</text>
+      </view>
+      <view class="auth-hint">登录后数据会进入后台网页，方便按标段处理和统计</view>
+    </view>
+  </view>
+</view>
+
+<!-- 昵称头像授权弹窗 -->
+<view wx:if="{{showNicknameModal}}" class="modal-overlay">
+  <view class="modal-box">
+    <view class="modal-hd">
+      <view class="modal-title">完善个人信息</view>
+      <view class="modal-sub">填写昵称和头像，用于记录上报人</view>
+    </view>
+
+    <view class="modal-body">
+      <view class="modal-field">
+        <view class="field-label">头像</view>
+        <button class="avatar-pick-btn" open-type="chooseAvatar" bindchooseavatar="chooseAvatar">
+          <image wx:if="{{tempAvatarUrl}}" class="avatar-preview" src="{{tempAvatarUrl}}" mode="aspectFill"></image>
+          <view wx:else class="avatar-placeholder">
+            <view class="avatar-placeholder-icon">👤</view>
+            <view class="avatar-placeholder-tip">点击选择头像</view>
+          </view>
+        </button>
+      </view>
+
+      <view class="modal-field">
+        <view class="field-label">昵称</view>
+        <input
+          class="nickname-input"
+          type="nickname"
+          placeholder="请输入昵称"
+          value="{{tempNickname}}"
+          bindinput="onNicknameInput"
+          maxlength="20"
+        />
+      </view>
+    </view>
+
+    <view class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" bindtap="cancelUserInfo">取消</button>
+      <button class="modal-btn modal-btn-confirm" bindtap="confirmUserInfo">确认登录</button>
+    </view>
+  </view>
+</view>

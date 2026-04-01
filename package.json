@@ -1,0 +1,20 @@
+{
+  "name": "xcx-safe-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "隐患随手拍小程序与后台服务",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "node server/index.js",
+    "start": "NODE_ENV=production node server/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "cos-nodejs-sdk-v5": "^2.14.7",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "mysql2": "^3.15.2"
+  }
+}

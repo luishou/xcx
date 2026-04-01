@@ -1,0 +1,22 @@
+<view class="page-shell section-page">
+  <view class="section-card glass-card">
+    <view class="section-title">请选择当前标段</view>
+    <view class="section-subtitle">进入上报前先确认所属标段，隐患信息会按标段进入对应后台管理。</view>
+
+    <view class="section-grid">
+      <view
+        wx:for="{{sections}}"
+        wx:key="code"
+        class="section-item {{item.activeClass}}"
+        data-code="{{item.code}}"
+        bindtap="handleSectionTap"
+      >
+        <view class="section-code">{{item.code}}</view>
+        <view class="section-name">{{item.name}}</view>
+        <view class="section-state">{{item.stateText}}</view>
+      </view>
+    </view>
+
+    <view class="section-note">选择完成后将直接进入隐患上报页面，后续仍可切换标段。</view>
+  </view>
+</view>
