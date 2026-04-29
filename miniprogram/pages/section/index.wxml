@@ -1,7 +1,22 @@
 <view class="page-shell section-page">
   <view class="section-card glass-card">
     <view class="section-title">请选择当前标段</view>
-    <view class="section-subtitle">进入上报前先确认所属标段，隐患信息会按标段进入对应后台管理。</view>
+    <view class="section-subtitle">
+      {{mode === 'admin' ? '进入对应标段管理后台，查看记录与处理进度。' : '进入上报前先确认所属标段，隐患信息会按标段进入对应后台管理。'}}
+    </view>
+
+    <view class="mode-switch">
+      <view
+        class="mode-switch-item {{mode === 'report' ? 'mode-switch-item-active' : ''}}"
+        data-mode="report"
+        bindtap="handleModeChange"
+      >上报</view>
+      <view
+        class="mode-switch-item {{mode === 'admin' ? 'mode-switch-item-active' : ''}}"
+        data-mode="admin"
+        bindtap="handleModeChange"
+      >管理</view>
+    </view>
 
     <view class="section-grid">
       <view
@@ -17,6 +32,8 @@
       </view>
     </view>
 
-    <view class="section-note">选择完成后将直接进入隐患上报页面，后续仍可切换标段。</view>
+    <view class="section-note">
+      {{mode === 'admin' ? '管理模式下点击标段将进入该标段的管理后台。' : '选择完成后将直接进入隐患上报页面，后续仍可切换标段。'}}
+    </view>
   </view>
 </view>

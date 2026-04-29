@@ -1,0 +1,239 @@
+<view class="admin-page">
+  <!-- 态势总览 -->
+  <view class="overview-card">
+    <view class="overview-head">
+      <view>
+        <view class="overview-title">{{section}} 标段安全态势</view>
+        <view class="overview-sub">
+          {{errorMessage ? '数据同步失败：' + errorMessage : '当前展示 ' + section + ' 标段的累计上报、待处理数量和闭环情况。'}}
+        </view>
+      </view>
+      <view class="overview-tag">{{section}}</view>
+    </view>
+    <view class="overview-grid">
+      <view class="overview-item">
+        <view class="overview-label">累计上报</view>
+        <view class="overview-value">{{stats.total}}</view>
+      </view>
+      <view class="overview-item">
+        <view class="overview-label">近 7 天</view>
+        <view class="overview-value">{{stats.thisWeek}}</view>
+      </view>
+      <view class="overview-item">
+        <view class="overview-label">待处理</view>
+        <view class="overview-value danger">{{stats.pending}}</view>
+      </view>
+      <view class="overview-item">
+        <view class="overview-label">处理中</view>
+        <view class="overview-value warn">{{stats.inProgress}}</view>
+      </view>
+      <view class="overview-item">
+        <view class="overview-label">已完成</view>
+        <view class="overview-value good">{{stats.done}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Tab 栏 -->
+  <view class="tab-bar">
+    <view
+      class="tab-btn {{activeTab === 'records' ? 'active' : ''}}"
+      data-tab="records"
+      bindtap="switchTab"
+    >
+      <text>📋 待处理与记录</text>
+      <text wx:if="{{stats.pending > 0}}" class="tab-count">{{stats.pending}}</text>
+    </view>
+    <view
+      class="tab-btn {{activeTab === 'stats' ? 'active' : ''}}"
+      data-tab="stats"
+      bindtap="switchTab"
+    >📊 当前标段报表</view>
+  </view>
+
+  <!-- 记录 Tab -->
+  <view wx:if="{{activeTab === 'records'}}" class="tab-panel">
+    <view class="filter-bar">
+      <view class="filter-title">当前标段记录</view>
+      <view class="refresh-btn" bindtap="handleRefresh">🔄 刷新</view>
+    </view>
+
+    <view wx:if="{{loading}}" class="empty-state">
+      <view class="empty-icon">⏳</view>
+      <view class="empty-title">正在加载 {{section}} 数据</view>
+      <view class="empty-sub">请稍候片刻...</view>
+    </view>
+
+    <view wx:elif="{{errorMessage}}" class="empty-state">
+      <view class="empty-icon">⚠️</view>
+      <view class="empty-title">数据加载失败</view>
+      <view class="empty-sub">{{errorMessage}}</view>
+    </view>
+
+    <view wx:elif="{{displayRecords.length === 0}}" class="empty-state">
+      <view class="empty-icon">🗂️</view>
+      <view class="empty-title">{{section}} 暂无上报记录</view>
+      <view class="empty-sub">工友提交隐患后，记录将显示在这里</view>
+    </view>
+
+    <view wx:else class="record-list">
+      <view
+        wx:for="{{displayRecords}}"
+        wx:key="id"
+        class="record-card"
+        data-id="{{item.id}}"
+        bindtap="openDetail"
+      >
+        <view class="record-thumbs">
+          <image
+            wx:for="{{item.thumbs}}"
+            wx:for-item="thumb"
+            wx:key="*this"
+            class="record-thumb"
+            src="{{thumb}}"
+            mode="aspectFill"
+            data-src="{{thumb}}"
+            data-images="{{item.images}}"
+            catchtap="previewThumb"
+          />
+          <view
+            wx:if="{{item.moreCount > 0}}"
+            class="thumb-more"
+            data-src="{{item.images[2]}}"
+            data-images="{{item.images}}"
+            catchtap="previewThumb"
+          >+{{item.moreCount}}</view>
+        </view>
+        <view class="record-body">
+          <view class="record-top">
+            <text class="section-badge">{{item.section}}</text>
+            <text class="record-id">#{{item.shortId}}</text>
+            <text class="record-photo-count">共 {{item.images.length}} 张图片</text>
+          </view>
+          <view class="record-desc {{item.descriptionEmpty ? 'empty' : ''}}">{{item.descriptionText}}</view>
+          <view class="record-meta">
+            <text class="meta-item">👷 {{item.worker || '工友'}}</text>
+            <text class="meta-item">🕐 {{item.time}}</text>
+            <text class="status-pill {{item.statusClass}}">{{item.status}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计 Tab -->
+  <view wx:if="{{activeTab === 'stats'}}" class="tab-panel">
+    <view class="stats-grid">
+      <view class="stat-card">
+        <view class="stat-label">📋 {{section}} 总上报数</view>
+        <view class="stat-value red">{{stats.total}}</view>
+        <view class="stat-sub">当前标段累计记录</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-label">📅 本周上报</view>
+        <view class="stat-value orange">{{stats.thisWeek}}</view>
+        <view class="stat-sub">当前标段近 7 天提交</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-label">⏳ 待处理</view>
+        <view class="stat-value orange">{{stats.pending}}</view>
+        <view class="stat-sub">当前标段待跟进</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-label">✅ 已完成</view>
+        <view class="stat-value green">{{stats.done}}</view>
+        <view class="stat-sub">当前标段已闭环</view>
+      </view>
+    </view>
+
+    <view class="stats-section-title">当前标段状态分布</view>
+    <view
+      wx:for="{{statusDistribution}}"
+      wx:key="key"
+      class="section-stat-row"
+    >
+      <view class="section-stat-header">
+        <text class="section-stat-name" style="color:{{item.color}}">{{item.label}}</text>
+        <text class="section-stat-count" style="color:{{item.color}}">{{item.count}} 条</text>
+      </view>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width:{{item.percent}}%;background:{{item.color}}"></view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 详情弹层 -->
+<view wx:if="{{detailVisible}}" class="detail-overlay" bindtap="closeDetail">
+  <view class="detail-card" catchtap="noop">
+    <view class="detail-top">
+      <view>
+        <view class="detail-title">隐患详情 #{{detailRecord.shortId}}</view>
+        <view class="detail-sub">请确认记录信息后，再切换当前处理状态。</view>
+      </view>
+      <view class="detail-close" bindtap="closeDetail">×</view>
+    </view>
+
+    <view class="detail-grid">
+      <view class="detail-item">
+        <view class="detail-label">记录编号</view>
+        <view class="detail-value">#{{detailRecord.shortId}}</view>
+      </view>
+      <view class="detail-item">
+        <view class="detail-label">所属标段</view>
+        <view class="detail-value">{{detailRecord.section}}</view>
+      </view>
+      <view class="detail-item">
+        <view class="detail-label">上报人</view>
+        <view class="detail-value">{{detailRecord.worker || '工友'}}</view>
+      </view>
+      <view class="detail-item">
+        <view class="detail-label">上报时间</view>
+        <view class="detail-value">{{detailRecord.time}}</view>
+      </view>
+    </view>
+
+    <view class="detail-section">
+      <view class="detail-section-title">隐患描述</view>
+      <view class="detail-desc {{detailRecord.descriptionEmpty ? 'empty' : ''}}">{{detailRecord.descriptionText}}</view>
+    </view>
+
+    <view class="detail-section">
+      <view class="detail-section-title">现场图片</view>
+      <view wx:if="{{detailRecord.images.length === 0}}" class="detail-desc empty">暂无现场图片</view>
+      <view wx:else class="detail-images">
+        <image
+          wx:for="{{detailRecord.images}}"
+          wx:key="*this"
+          class="detail-image"
+          src="{{item}}"
+          mode="aspectFill"
+          data-src="{{item}}"
+          bindtap="previewDetailImage"
+        />
+      </view>
+    </view>
+
+    <view class="detail-actions">
+      <view class="detail-status-wrap">
+        <text class="detail-label">处理状态</text>
+        <picker
+          mode="selector"
+          range="{{statusOptions}}"
+          value="{{detailStatusIndex}}"
+          bindchange="onStatusChange"
+        >
+          <view class="status-select status-{{statusOptions[detailStatusIndex] === '待处理' ? 'pending' : statusOptions[detailStatusIndex] === '处理中' ? 'progress' : 'done'}}">
+            {{statusOptions[detailStatusIndex]}} ⌄
+          </view>
+        </picker>
+      </view>
+      <button
+        class="detail-save"
+        bindtap="saveDetailStatus"
+        loading="{{detailSaving}}"
+        disabled="{{detailSaving}}"
+      >保存处理状态</button>
+    </view>
+  </view>
+</view>

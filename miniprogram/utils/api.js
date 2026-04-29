@@ -1,10 +1,10 @@
 const store = require("./report-store");
 
 // 本地开发时指向 http://localhost:3300，发版前改回 production。
-const API_ENV = "local";
+const API_ENV = "production";
 const BASE_URL_MAP = {
   local: "http://localhost:3300",
-  production: "https://safe.luishou.top"
+  production: "https://safe.luishou.xyz"
 };
 const BASE_URL = BASE_URL_MAP[API_ENV];
 
@@ -72,10 +72,33 @@ function uploadFile(filePath) {
   });
 }
 
+function adminFetchRecords(section) {
+  return request({
+    url: `/api/admin/records?section=${encodeURIComponent(section)}`
+  });
+}
+
+function adminFetchStats(section) {
+  return request({
+    url: `/api/admin/stats?section=${encodeURIComponent(section)}`
+  });
+}
+
+function adminUpdateStatus(id, status) {
+  return request({
+    url: `/api/admin/reports/${id}/status`,
+    method: "PATCH",
+    data: { status }
+  });
+}
+
 module.exports = {
   API_ENV,
   BASE_URL,
   BASE_URL_MAP,
   request,
-  uploadFile
+  uploadFile,
+  adminFetchRecords,
+  adminFetchStats,
+  adminUpdateStatus
 };

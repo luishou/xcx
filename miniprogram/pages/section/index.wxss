@@ -22,6 +22,32 @@
   color: #6b7280;
 }
 
+.mode-switch {
+  margin-top: 30rpx;
+  display: flex;
+  padding: 6rpx;
+  border-radius: 999rpx;
+  background: rgba(208, 2, 27, 0.06);
+  border: 2rpx solid rgba(208, 2, 27, 0.08);
+}
+
+.mode-switch-item {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #6b7280;
+  border-radius: 999rpx;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+
+.mode-switch-item-active {
+  background: linear-gradient(135deg, #9f0014, #d0021b);
+  color: #ffffff;
+  box-shadow: 0 10rpx 22rpx rgba(208, 2, 27, 0.22);
+}
+
 .section-grid {
   margin-top: 36rpx;
   display: flex;

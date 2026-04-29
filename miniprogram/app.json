@@ -3,10 +3,11 @@
     "pages/index/index",
     "pages/section/index",
     "pages/report/index",
-    "pages/my-reports/index"
+    "pages/my-reports/index",
+    "pages/admin/index"
   ],
   "window": {
-    "navigationBarTitleText": "隐患随手拍",
+    "navigationBarTitleText": "中泰安哨·隐患智查平台",
     "navigationBarBackgroundColor": "#b30a1e",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#f6f3f2",

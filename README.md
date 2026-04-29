@@ -116,7 +116,7 @@ WECHAT_SECRET=your_wechat_secret
 
 PORT=3300
 NODE_ENV=production
-BASE_URL=https://safe.luishou.top
+BASE_URL=https://safe.luishou.xyz
 
 DB_HOST=your_prod_db_host
 DB_PORT=3306
@@ -185,8 +185,8 @@ npm start
 
 微信公众平台需要配置的域名：
 
-- `request` 合法域名：`https://safe.luishou.top`
-- `uploadFile` 合法域名：`https://safe.luishou.top`
+- `request` 合法域名：`https://safe.luishou.xyz`
+- `uploadFile` 合法域名：`https://safe.luishou.xyz`
 
 如果本地联调要走 `localhost`：
 

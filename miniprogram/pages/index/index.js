@@ -1,55 +1,45 @@
 const store = require("../../utils/report-store");
 const api = require("../../utils/api");
 
+function getWindowHeight() {
+  try {
+    if (typeof wx.getWindowInfo === "function") {
+      return wx.getWindowInfo().windowHeight;
+    }
+  } catch (e) {
+    /* ignore */
+  }
+  try {
+    return wx.getSystemInfoSync().windowHeight;
+  } catch (e) {
+    return 667;
+  }
+}
+
 Page({
   data: {
+    scrollHeight: 667,
     isLoggedIn: false,
-    buttonText: "授权昵称头像 · 一键登录",
+    primaryButtonText: "点击上报",
     loading: false,
     statusText: "待授权进入",
-    welcomeText: "面向施工现场的一线安全直报入口，发现隐患后可立即拍照、选择标段并提交后台处理。",
-    metrics: [
-      { value: "10 秒", label: "最快完成一次上报" },
-      { value: "3 张", label: "支持现场多图上传" },
-      { value: "2 标段", label: "按施工标段精准分发" }
-    ],
+    welcomeText: "",
     features: [
-      {
-        icon: "📷",
-        title: "现场直拍，减少漏报",
-        text: "不需要复杂表单，发现问题后直接拍照上传，降低工友上报门槛。"
-      },
-      {
-        icon: "🧭",
-        title: "按标段分流处理",
-        text: "提交时确认标段，后台能直接按 TJ01、TJ02 分开查看和跟进。"
-      },
-      {
-        icon: "📊",
-        title: "后台同步可见",
-        text: "上报成功后会进入后台记录和统计页，方便管理人员统一处理。"
-      }
-    ],
-    steps: [
-      {
-        index: "1",
-        title: "微信授权进入",
-        text: "首次进入完成授权，系统会记录当前上报人信息。"
-      },
-      {
-        index: "2",
-        title: "选择标段并拍照",
-        text: "确认所在标段后拍摄隐患现场，最多支持 3 张图片。"
-      },
-      {
-        index: "3",
-        title: "补充描述并提交",
-        text: "可补一句简要说明，提交后后台立即可以看到这条记录。"
-      }
+      { icon: "📷", text: "拍照即上报，无需填写复杂表单" },
+      { icon: "⚡", text: "全程约 10 秒完成，操作极简" },
+      { icon: "🛡️", text: "隐患及时处理，保障你和工友的安全" }
     ],
     showNicknameModal: false,
     tempNickname: "",
     tempAvatarUrl: ""
+  },
+
+  onLoad() {
+    this.setData({ scrollHeight: getWindowHeight() });
+  },
+
+  onResize() {
+    this.setData({ scrollHeight: getWindowHeight() });
   },
 
   onShow() {
@@ -58,26 +48,26 @@ Page({
     if (isLoggedIn) {
       this.setData({
         isLoggedIn: true,
-        buttonText: `继续使用 ${currentUser.name}`,
+        primaryButtonText: "继续上报",
         statusText: "已授权，可继续上报",
-        welcomeText: `${currentUser.name}，欢迎回来。发现现场隐患后，直接进入下一步继续上报。`
+        welcomeText: `${currentUser.name}，欢迎回来。点击下方继续选择标段并上报。`
       });
     } else {
       this.setData({
         isLoggedIn: false,
-        buttonText: "授权昵称头像 · 一键登录",
+        primaryButtonText: "点击上报",
         statusText: "待授权进入",
-        welcomeText: "面向施工现场的一线安全直报入口，发现隐患后可立即拍照、选择标段并提交后台处理。"
+        welcomeText: ""
       });
     }
   },
 
-  handleAuthTap() {
+  /** 主流程：已登录直接去标段；未登录先弹授权，成功后再去标段 */
+  handleReportTap() {
     if (this.data.loading) {
       return;
     }
 
-    // 已登录：直接跳转，不重复弹授权弹窗
     const currentUser = store.getCurrentUser();
     if (currentUser && currentUser.name && store.getToken()) {
       wx.navigateTo({ url: "/pages/section/index" });
@@ -111,7 +101,7 @@ Page({
       avatarUrl: tempAvatarUrl || ""
     };
 
-    this.setData({ showNicknameModal: false, loading: true, buttonText: "登录中..." });
+    this.setData({ showNicknameModal: false, loading: true, primaryButtonText: "登录中..." });
     this.proceedWithLogin(userInfo);
   },
 
@@ -147,12 +137,12 @@ Page({
           })
           .catch((error) => this._onLoginFail(error))
           .finally(() => {
-            const currentUser = store.getCurrentUser();
+            const u = store.getCurrentUser();
             this.setData({
               loading: false,
-              buttonText: currentUser && currentUser.name
-                ? `继续使用 ${currentUser.name}`
-                : "授权昵称头像 · 一键登录"
+              isLoggedIn: !!(u && u.name && store.getToken()),
+              primaryButtonText: u && u.name ? "继续上报" : "点击上报",
+              statusText: u && u.name ? "已授权，可继续上报" : "待授权进入"
             });
           });
       },
@@ -166,6 +156,6 @@ Page({
 
   _onLoginFail(error) {
     wx.showToast({ title: (error && error.message) || "登录失败", icon: "none" });
-    this.setData({ loading: false, buttonText: "授权昵称头像 · 一键登录" });
+    this.setData({ loading: false, primaryButtonText: "点击上报" });
   }
 });

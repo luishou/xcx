@@ -6,7 +6,7 @@
       <view class="user-meta">
         <view class="user-name">{{currentUser.name}}</view>
         <view class="user-subline">
-          中环中泰建设工地
+          中泰安哨·隐患智查平台
           <text class="section-pill">{{selectedSection}}</text>
         </view>
       </view>

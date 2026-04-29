@@ -1,6 +1,6 @@
 App({
   globalData: {
-    brandName: "中环中泰・隐患随手拍",
-    baseUrl: "https://safe.luishou.top"
+    brandName: "中泰安哨·隐患智查平台",
+    baseUrl: "https://safe.luishou.xyz"
   }
 });
