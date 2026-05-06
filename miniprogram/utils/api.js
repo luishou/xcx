@@ -47,6 +47,13 @@ function request(options) {
           return;
         }
 
+        if (res.statusCode === 401) {
+          store.clearSession();
+          wx.reLaunch({ url: "/pages/index/index" });
+          reject(new Error("登录已失效，请重新授权"));
+          return;
+        }
+
         reject(new Error((res.data && res.data.message) || "请求失败"));
       },
       fail: reject
