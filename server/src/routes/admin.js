@@ -1,18 +1,41 @@
 const express = require("express");
 
 const { pool } = require("../db");
+const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
 const VALID_SECTIONS = new Set(["TJ01", "TJ02"]);
 const VALID_STATUS = new Set(["待处理", "处理中", "已完成"]);
 
+router.use(requireAuth);
+
+function getUserManageSections(req) {
+  const list = (req.user && req.user.manageSections) || [];
+  return Array.isArray(list) ? list : [];
+}
+
+function ensureSectionPermission(req, res, section) {
+  if (!VALID_SECTIONS.has(section)) {
+    res.status(400).json({ message: "请选择正确的标段" });
+    return false;
+  }
+  if (!getUserManageSections(req).includes(section)) {
+    res.status(403).json({ message: "无该标段管理权限" });
+    return false;
+  }
+  return true;
+}
+
+router.get("/me/sections", (req, res) => {
+  const sections = getUserManageSections(req).filter((s) => VALID_SECTIONS.has(s));
+  res.json({ sections });
+});
+
 router.get("/records", async (req, res, next) => {
   try {
     const section = req.query.section;
-    if (!VALID_SECTIONS.has(section)) {
-      return res.status(400).json({
-        message: "请选择正确的标段"
-      });
+    if (!ensureSectionPermission(req, res, section)) {
+      return;
     }
 
     const [rows] = await pool.query(
@@ -52,10 +75,8 @@ router.get("/records", async (req, res, next) => {
 router.get("/stats", async (req, res, next) => {
   try {
     const section = req.query.section;
-    if (!VALID_SECTIONS.has(section)) {
-      return res.status(400).json({
-        message: "请选择正确的标段"
-      });
+    if (!ensureSectionPermission(req, res, section)) {
+      return;
     }
 
     const [rows] = await pool.query(
@@ -102,6 +123,21 @@ router.patch("/reports/:id/status", async (req, res, next) => {
       return res.status(400).json({
         message: "状态值不合法"
       });
+    }
+
+    const [reportRows] = await pool.query(
+      "SELECT section_code AS section FROM reports WHERE id = ? LIMIT 1",
+      [reportId]
+    );
+
+    if (!reportRows.length) {
+      return res.status(404).json({
+        message: "未找到对应记录"
+      });
+    }
+
+    if (!ensureSectionPermission(req, res, reportRows[0].section)) {
+      return;
     }
 
     const [result] = await pool.query(

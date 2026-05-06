@@ -30,6 +30,13 @@ function setCurrentUser(user) {
   setStorage(STORAGE_KEYS.currentUser, user);
 }
 
+function getManageSections() {
+  const user = getCurrentUser();
+  if (!user) return [];
+  const list = user.manageSections;
+  return Array.isArray(list) ? list : [];
+}
+
 function getCurrentSection() {
   return getStorage(STORAGE_KEYS.currentSection, "");
 }
@@ -62,6 +69,7 @@ module.exports = {
   clearSession,
   getCurrentSection,
   getCurrentUser,
+  getManageSections,
   getToken,
   setCurrentSection,
   setCurrentUser,

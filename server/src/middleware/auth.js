@@ -1,6 +1,14 @@
 const jwt = require("jsonwebtoken");
 const { pool } = require("../db");
 
+function parseManageSections(value) {
+  if (!value) return [];
+  return String(value)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 async function requireAuth(req, res, next) {
   try {
     const authHeader = req.headers.authorization || "";
@@ -14,7 +22,7 @@ async function requireAuth(req, res, next) {
 
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     const [rows] = await pool.query(
-      "SELECT id, openid, nickname, avatar_url AS avatarUrl FROM users WHERE id = ? LIMIT 1",
+      "SELECT id, openid, nickname, avatar_url AS avatarUrl, manage_sections AS manageSections FROM users WHERE id = ? LIMIT 1",
       [payload.userId]
     );
 
@@ -24,7 +32,10 @@ async function requireAuth(req, res, next) {
       });
     }
 
-    req.user = rows[0];
+    const user = rows[0];
+    user.manageSections = parseManageSections(user.manageSections);
+
+    req.user = user;
     next();
   } catch (error) {
     next(error);
@@ -32,5 +43,6 @@ async function requireAuth(req, res, next) {
 }
 
 module.exports = {
-  requireAuth
+  requireAuth,
+  parseManageSections
 };

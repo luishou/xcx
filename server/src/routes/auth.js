@@ -2,6 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 
 const { pool } = require("../db");
+const { parseManageSections } = require("../middleware/auth");
 const { fetchWechatSession } = require("../services/wechat");
 
 const router = express.Router();
@@ -32,11 +33,13 @@ router.post("/wechat-login", async (req, res, next) => {
     );
 
     const [rows] = await pool.query(
-      "SELECT id, openid, nickname, avatar_url AS avatarUrl FROM users WHERE openid = ? LIMIT 1",
+      "SELECT id, openid, nickname, avatar_url AS avatarUrl, manage_sections AS manageSections FROM users WHERE openid = ? LIMIT 1",
       [openid]
     );
 
     const user = rows[0];
+    user.manageSections = parseManageSections(user.manageSections);
+
     const token = jwt.sign(
       {
         userId: user.id,

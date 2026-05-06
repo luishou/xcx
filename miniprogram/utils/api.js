@@ -8,6 +8,19 @@ const BASE_URL_MAP = {
 };
 const BASE_URL = BASE_URL_MAP[API_ENV];
 
+function resolveBaseUrl() {
+  try {
+    const app = getApp();
+    const appBaseUrl = app && app.globalData && app.globalData.baseUrl;
+    if (appBaseUrl) {
+      return appBaseUrl;
+    }
+  } catch (error) {
+    // ignore and fallback
+  }
+  return BASE_URL;
+}
+
 function request(options) {
   const method = options.method || "GET";
   const header = {
@@ -22,8 +35,9 @@ function request(options) {
   }
 
   return new Promise((resolve, reject) => {
+    const baseUrl = resolveBaseUrl();
     wx.request({
-      url: `${BASE_URL}${options.url}`,
+      url: `${baseUrl}${options.url}`,
       method,
       data: options.data,
       header,
@@ -44,8 +58,9 @@ function uploadFile(filePath) {
   const token = store.getToken();
 
   return new Promise((resolve, reject) => {
+    const baseUrl = resolveBaseUrl();
     wx.uploadFile({
-      url: `${BASE_URL}/api/reports/upload`,
+      url: `${baseUrl}/api/reports/upload`,
       filePath,
       name: "file",
       header: {
@@ -74,13 +89,15 @@ function uploadFile(filePath) {
 
 function adminFetchRecords(section) {
   return request({
-    url: `/api/admin/records?section=${encodeURIComponent(section)}`
+    url: `/api/admin/records?section=${encodeURIComponent(section)}`,
+    auth: true
   });
 }
 
 function adminFetchStats(section) {
   return request({
-    url: `/api/admin/stats?section=${encodeURIComponent(section)}`
+    url: `/api/admin/stats?section=${encodeURIComponent(section)}`,
+    auth: true
   });
 }
 
@@ -88,7 +105,15 @@ function adminUpdateStatus(id, status) {
   return request({
     url: `/api/admin/reports/${id}/status`,
     method: "PATCH",
-    data: { status }
+    data: { status },
+    auth: true
+  });
+}
+
+function adminFetchMySections() {
+  return request({
+    url: "/api/admin/me/sections",
+    auth: true
   });
 }
 
@@ -100,5 +125,6 @@ module.exports = {
   uploadFile,
   adminFetchRecords,
   adminFetchStats,
-  adminUpdateStatus
+  adminUpdateStatus,
+  adminFetchMySections
 };

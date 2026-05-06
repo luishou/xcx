@@ -5,7 +5,7 @@
       {{mode === 'admin' ? '进入对应标段管理后台，查看记录与处理进度。' : '进入上报前先确认所属标段，隐患信息会按标段进入对应后台管理。'}}
     </view>
 
-    <view class="mode-switch">
+    <view wx:if="{{canManage}}" class="mode-switch">
       <view
         class="mode-switch-item {{mode === 'report' ? 'mode-switch-item-active' : ''}}"
         data-mode="report"

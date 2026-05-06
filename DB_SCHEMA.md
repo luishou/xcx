@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `openid` VARCHAR(128) NOT NULL COMMENT '微信用户唯一标识',
   `nickname` VARCHAR(100) NOT NULL DEFAULT '微信用户' COMMENT '用户昵称',
   `avatar_url` TEXT NULL COMMENT '头像URL',
+  `manage_sections` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '可管理标段，逗号分隔，如 TJ01,TJ02',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
@@ -46,6 +47,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 | `openid` | `VARCHAR(128)` | 否 | 无 | 微信唯一标识 |
 | `nickname` | `VARCHAR(100)` | 否 | `微信用户` | 用户昵称 |
 | `avatar_url` | `TEXT` | 是 | `NULL` | 用户头像地址 |
+| `manage_sections` | `VARCHAR(64)` | 否 | 空字符串 | 可管理标段集合，逗号分隔（如 `TJ01`、`TJ01,TJ02`），为空表示无管理权限 |
 | `created_at` | `DATETIME` | 否 | `CURRENT_TIMESTAMP` | 创建时间 |
 | `updated_at` | `DATETIME` | 否 | `CURRENT_TIMESTAMP` | 更新时间 |
 
@@ -108,6 +110,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `openid` VARCHAR(128) NOT NULL,
   `nickname` VARCHAR(100) NOT NULL DEFAULT '微信用户',
   `avatar_url` TEXT NULL,
+  `manage_sections` VARCHAR(64) NOT NULL DEFAULT '',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -134,6 +137,7 @@ CREATE TABLE IF NOT EXISTS `reports` (
 ## 5. 业务约束说明
 
 - `users.openid` 必须唯一
+- `users.manage_sections` 仅存合法标段编码（当前 `TJ01`、`TJ02`），多值用英文逗号分隔，无空格；为空字符串表示该用户没有任何标段管理权限
 - `reports.section_code` 当前后端只接受 `TJ01`、`TJ02`
 - `reports.status` 当前只允许：
   - `待处理`
@@ -147,3 +151,23 @@ CREATE TABLE IF NOT EXISTS `reports` (
 - 手动建表 SQL：[schema.sql](/Users/luishou/code/xcx/schema.sql)
 - 微信登录写入用户：[auth.js](/Users/luishou/code/xcx/server/src/routes/auth.js)
 - 上报记录写入逻辑：[reports.js](/Users/luishou/code/xcx/server/src/routes/reports.js)
+- 管理后台权限校验：[admin.js](/Users/luishou/code/xcx/server/src/routes/admin.js)、[middleware/auth.js](/Users/luishou/code/xcx/server/src/middleware/auth.js)
+
+## 7. 线上迁移与授权
+
+已上线的库需要执行以下迁移补齐字段：
+
+```sql
+ALTER TABLE `users`
+  ADD COLUMN `manage_sections` VARCHAR(64) NOT NULL DEFAULT ''
+  AFTER `avatar_url`;
+```
+
+授权某个用户为某些标段的管理员：
+
+```sql
+UPDATE `users` SET `manage_sections` = 'TJ01'        WHERE id = ?;
+UPDATE `users` SET `manage_sections` = 'TJ02'        WHERE id = ?;
+UPDATE `users` SET `manage_sections` = 'TJ01,TJ02'   WHERE id = ?;
+UPDATE `users` SET `manage_sections` = ''            WHERE id = ?;
+```

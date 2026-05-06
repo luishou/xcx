@@ -126,7 +126,10 @@ Page({
             store.setCurrentUser({
               id: result.user.id,
               name: result.user.nickname,
-              avatarUrl: result.user.avatarUrl
+              avatarUrl: result.user.avatarUrl,
+              manageSections: Array.isArray(result.user.manageSections)
+                ? result.user.manageSections
+                : []
             });
 
             wx.showToast({ title: "授权成功", icon: "success" });

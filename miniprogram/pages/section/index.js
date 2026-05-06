@@ -1,10 +1,13 @@
 const store = require("../../utils/report-store");
+const api = require("../../utils/api");
 
 Page({
   data: {
     sections: store.SECTIONS,
     selectedSection: "",
-    mode: "report" // report | admin
+    mode: "report", // report | admin
+    canManage: false,
+    manageSections: []
   },
 
   onShow() {
@@ -16,20 +19,28 @@ Page({
       return;
     }
 
-    this.syncSections(store.getCurrentSection(), this.data.mode);
+    this.refreshManageSections();
   },
 
   handleModeChange(event) {
     const { mode } = event.currentTarget.dataset;
     if (!mode || mode === this.data.mode) return;
+    if (mode === "admin" && !this.data.canManage) {
+      wx.showToast({ title: "暂无标段管理权限", icon: "none" });
+      return;
+    }
     this.syncSections(this.data.selectedSection, mode);
   },
 
   handleSectionTap(event) {
     const { code } = event.currentTarget.dataset;
-    const { mode } = this.data;
+    const { mode, manageSections } = this.data;
 
     if (mode === "admin") {
+      if (!manageSections.includes(code)) {
+        wx.showToast({ title: "暂无该标段管理权限", icon: "none" });
+        return;
+      }
       this.syncSections(code, mode);
       wx.navigateTo({
         url: `/pages/admin/index?section=${code}`
@@ -55,7 +66,11 @@ Page({
   syncSections(selectedSection, mode) {
     const nextMode = mode || this.data.mode || "report";
     const isAdmin = nextMode === "admin";
-    const sections = store.SECTIONS.map((item) => ({
+    const manageSections = this.data.manageSections || [];
+    const baseSections = isAdmin
+      ? store.SECTIONS.filter((item) => manageSections.includes(item.code))
+      : store.SECTIONS;
+    const sections = baseSections.map((item) => ({
       ...item,
       activeClass: !isAdmin && item.code === selectedSection ? "section-item-active" : "",
       stateText: isAdmin
@@ -70,5 +85,32 @@ Page({
       selectedSection,
       sections
     });
+  },
+
+  refreshManageSections() {
+    const localManageSections = store.getManageSections();
+
+    api
+      .adminFetchMySections()
+      .then((result) => {
+        const remoteSections = Array.isArray(result && result.sections) ? result.sections : [];
+        const currentUser = store.getCurrentUser() || {};
+        store.setCurrentUser({
+          ...currentUser,
+          manageSections: remoteSections
+        });
+        this.applyManageSections(remoteSections);
+      })
+      .catch((error) => {
+        console.warn("[section-page] adminFetchMySections failed, fallback local cache", error);
+        this.applyManageSections(localManageSections);
+      });
+  },
+
+  applyManageSections(manageSections) {
+    const canManage = manageSections.length > 0;
+    const nextMode = canManage ? this.data.mode : "report";
+    this.setData({ canManage, manageSections });
+    this.syncSections(store.getCurrentSection(), nextMode);
   }
 });
