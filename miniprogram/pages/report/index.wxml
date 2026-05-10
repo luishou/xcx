@@ -65,6 +65,14 @@
     <button class="submit-btn" disabled="{{submitDisabled}}" bindtap="handleSubmit">{{submitText}}</button>
   </view>
 
+  <login-modal
+    visible="{{showLoginModal}}"
+    title="授权登录"
+    subtitle="提交举报需登录，便于后台联系与跟进处理"
+    bindconfirm="onLoginConfirm"
+    bindcancel="onLoginCancel"
+  />
+
   <view class="success-mask" wx:if="{{showSuccess}}">
     <view class="success-card">
       <view class="success-icon">✅</view>

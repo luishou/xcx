@@ -13,24 +13,56 @@ Page({
     records: [],
     loading: true,
     empty: false,
-    needLogin: false
+    needLogin: false,
+    showLoginModal: false
   },
 
   onShow() {
-    const currentUser = store.getCurrentUser();
-    const token = store.getToken();
-
-    if (!currentUser || !token) {
+    if (!store.isLoggedIn()) {
       this.setData({ needLogin: true, loading: false });
       return;
     }
 
-    this.setData({ needLogin: false, currentUser });
+    this.setData({ needLogin: false, currentUser: store.getCurrentUser() });
     this.loadRecords();
   },
 
-  handleGoLogin() {
+  handleAuthTap() {
+    this.setData({ showLoginModal: true });
+  },
+
+  handleDeclineLogin() {
     wx.navigateBack({ delta: 1 });
+  },
+
+  onLoginCancel() {
+    this.setData({ showLoginModal: false });
+  },
+
+  onLoginConfirm(e) {
+    const { userInfo } = e.detail;
+    if (!userInfo) {
+      return;
+    }
+
+    this.setData({ showLoginModal: false });
+
+    api
+      .loginWithWeChat(userInfo)
+      .then((user) => {
+        this.setData({
+          needLogin: false,
+          currentUser: user
+        });
+        wx.showToast({ title: "授权成功", icon: "success" });
+        this.loadRecords();
+      })
+      .catch((err) => {
+        wx.showToast({
+          title: (err && err.message) || "登录失败",
+          icon: "none"
+        });
+      });
   },
 
   loadRecords() {

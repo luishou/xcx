@@ -28,56 +28,16 @@
         </view>
       </view>
 
-      <button class="btn-auth" bindtap="handleReportTap" loading="{{loading}}" disabled="{{loading}}">{{primaryButtonText}}</button>
+      <button class="btn-auth" bindtap="handleReportTap">{{primaryButtonText}}</button>
 
-      <view wx:if="{{isLoggedIn}}" class="my-reports-link" bindtap="handleMyReportsTap">
+      <view class="my-reports-link" bindtap="handleMyReportsTap">
         <text class="my-reports-link-icon">📋</text>
         <text class="my-reports-link-text">查看我的举报记录</text>
         <text class="my-reports-link-arrow">›</text>
       </view>
 
-      <view class="auth-hint">首次上报需填写昵称与头像；数据将同步至后台便于处理</view>
+      <view class="auth-hint">提交举报时需授权登录；数据将同步至后台便于处理</view>
       <view class="page-footer">中泰安哨·隐患智查平台</view>
     </view>
   </scroll-view>
-</view>
-
-<!-- 昵称头像授权弹窗：确认后继续进入上报流程 -->
-<view wx:if="{{showNicknameModal}}" class="modal-overlay">
-  <view class="modal-box">
-    <view class="modal-hd">
-      <view class="modal-title">完善个人信息</view>
-      <view class="modal-sub">填写昵称和头像后即可继续上报</view>
-    </view>
-
-    <view class="modal-body">
-      <view class="modal-field">
-        <view class="field-label">头像</view>
-        <button class="avatar-pick-btn" open-type="chooseAvatar" bindchooseavatar="chooseAvatar">
-          <image wx:if="{{tempAvatarUrl}}" class="avatar-preview" src="{{tempAvatarUrl}}" mode="aspectFill"></image>
-          <view wx:else class="avatar-placeholder">
-            <view class="avatar-placeholder-icon">👤</view>
-            <view class="avatar-placeholder-tip">点击选择头像</view>
-          </view>
-        </button>
-      </view>
-
-      <view class="modal-field">
-        <view class="field-label">昵称</view>
-        <input
-          class="nickname-input"
-          type="nickname"
-          placeholder="请输入昵称"
-          value="{{tempNickname}}"
-          bindinput="onNicknameInput"
-          maxlength="20"
-        />
-      </view>
-    </view>
-
-    <view class="modal-footer">
-      <button class="modal-btn modal-btn-cancel" bindtap="cancelUserInfo">取消</button>
-      <button class="modal-btn modal-btn-confirm" bindtap="confirmUserInfo">确认并继续</button>
-    </view>
-  </view>
 </view>

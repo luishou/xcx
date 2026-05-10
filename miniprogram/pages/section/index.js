@@ -11,14 +11,10 @@ Page({
   },
 
   onShow() {
-    const currentUser = store.getCurrentUser();
-    if (!currentUser) {
-      wx.redirectTo({
-        url: "/pages/index/index"
-      });
+    if (!store.isLoggedIn()) {
+      this.applyManageSections([]);
       return;
     }
-
     this.refreshManageSections();
   },
 

@@ -4,9 +4,10 @@
     <!-- 未登录提示 -->
     <view wx:if="{{needLogin}}" class="state-box">
       <view class="state-icon">🔒</view>
-      <view class="state-title">请先登录</view>
-      <view class="state-text">登录后才能查看你的举报记录</view>
-      <button class="login-btn" bindtap="handleGoLogin">返回去登录</button>
+      <view class="state-title">查看举报记录需登录</view>
+      <view class="state-text">登录后可查看你提交过的隐患与处理进度；也可选择暂不登录返回</view>
+      <button class="login-btn login-btn-primary" bindtap="handleAuthTap">授权登录查看</button>
+      <button class="login-btn login-btn-secondary" bindtap="handleDeclineLogin">暂不登录</button>
     </view>
 
     <!-- 加载中 -->
@@ -52,4 +53,12 @@
     </block>
 
   </view>
+
+  <login-modal
+    visible="{{showLoginModal}}"
+    title="授权登录"
+    subtitle="登录后可同步查看你的举报记录与处理进度"
+    bindconfirm="onLoginConfirm"
+    bindcancel="onLoginCancel"
+  />
 </view>

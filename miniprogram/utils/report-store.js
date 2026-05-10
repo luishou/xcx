@@ -53,6 +53,13 @@ function getToken() {
   return getStorage(STORAGE_KEYS.authToken, "");
 }
 
+/** 同时存在用户信息与 token 视为已登录 */
+function isLoggedIn() {
+  const user = getCurrentUser();
+  const token = getToken();
+  return !!(user && user.name && token);
+}
+
 function setToken(token) {
   setStorage(STORAGE_KEYS.authToken, token);
 }
@@ -71,6 +78,7 @@ module.exports = {
   getCurrentUser,
   getManageSections,
   getToken,
+  isLoggedIn,
   setCurrentSection,
   setCurrentUser,
   setToken

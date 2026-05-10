@@ -1,0 +1,38 @@
+<view wx:if="{{visible}}" class="login-modal-overlay">
+  <view class="login-modal-box">
+    <view class="login-modal-hd">
+      <view class="login-modal-title">{{title}}</view>
+      <view class="login-modal-sub">{{subtitle}}</view>
+    </view>
+
+    <view class="login-modal-body">
+      <view class="login-modal-field">
+        <view class="login-field-label">头像</view>
+        <button class="login-avatar-pick-btn" open-type="chooseAvatar" bindchooseavatar="chooseAvatar">
+          <image wx:if="{{tempAvatarUrl}}" class="login-avatar-preview" src="{{tempAvatarUrl}}" mode="aspectFill"></image>
+          <view wx:else class="login-avatar-placeholder">
+            <view class="login-avatar-placeholder-icon">👤</view>
+            <view class="login-avatar-placeholder-tip">点击选择头像</view>
+          </view>
+        </button>
+      </view>
+
+      <view class="login-modal-field">
+        <view class="login-field-label">昵称</view>
+        <input
+          class="login-nickname-input"
+          type="nickname"
+          placeholder="请输入昵称"
+          value="{{tempNickname}}"
+          bindinput="onNicknameInput"
+          maxlength="20"
+        />
+      </view>
+    </view>
+
+    <view class="login-modal-footer">
+      <button class="login-modal-btn login-modal-btn-cancel" bindtap="onCancel">暂不登录</button>
+      <button class="login-modal-btn login-modal-btn-confirm" bindtap="onConfirm">确认并授权</button>
+    </view>
+  </view>
+</view>

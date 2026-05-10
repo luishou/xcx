@@ -1,12 +1,14 @@
 const store = require("../../utils/report-store");
 const api = require("../../utils/api");
 
+const GUEST_USER = {
+  name: "工友",
+  avatarUrl: ""
+};
+
 Page({
   data: {
-    currentUser: {
-      name: "工友昵称",
-      avatarUrl: ""
-    },
+    currentUser: GUEST_USER,
     selectedSection: "未选择标段",
     images: [],
     hasImages: false,
@@ -17,19 +19,12 @@ Page({
     submitDisabled: true,
     submitText: "请上传至少 1 张照片",
     showSuccess: false,
-    submitting: false
+    submitting: false,
+    showLoginModal: false
   },
 
   onShow() {
-    const currentUser = store.getCurrentUser();
     const selectedSection = store.getCurrentSection();
-
-    if (!currentUser) {
-      wx.redirectTo({
-        url: "/pages/index/index"
-      });
-      return;
-    }
 
     if (!selectedSection) {
       wx.redirectTo({
@@ -37,6 +32,10 @@ Page({
       });
       return;
     }
+
+    const loggedIn = store.isLoggedIn();
+    const storedUser = store.getCurrentUser();
+    const currentUser = loggedIn && storedUser ? storedUser : GUEST_USER;
 
     this.setData({
       currentUser,
@@ -60,6 +59,7 @@ Page({
     wx.chooseMedia({
       count: remain,
       mediaType: ["image"],
+      sizeType: ["compressed"],
       sourceType: ["album", "camera"],
       success: (res) => {
         const nextImages = res.tempFiles.map((item) => item.tempFilePath);
@@ -93,6 +93,46 @@ Page({
       return;
     }
 
+    if (!store.isLoggedIn()) {
+      this.setData({ showLoginModal: true });
+      return;
+    }
+
+    this.runSubmitFlow();
+  },
+
+  onLoginCancel() {
+    this.setData({ showLoginModal: false });
+  },
+
+  onLoginConfirm(e) {
+    const { userInfo } = e.detail;
+    if (!userInfo) {
+      return;
+    }
+
+    this.setData({ showLoginModal: false });
+
+    api
+      .loginWithWeChat(userInfo)
+      .then((user) => {
+        this.setData({ currentUser: user });
+        wx.showToast({ title: "授权成功", icon: "success" });
+        this.runSubmitFlow();
+      })
+      .catch((err) => {
+        wx.showToast({
+          title: (err && err.message) || "登录失败",
+          icon: "none"
+        });
+      });
+  },
+
+  runSubmitFlow() {
+    if (this.data.submitDisabled || this.data.submitting) {
+      return;
+    }
+
     this.setData({
       submitting: true,
       submitDisabled: true,
@@ -106,12 +146,17 @@ Page({
         });
       })
       .catch((error) => {
-        if (/登录/.test(error.message || "")) {
+        const msg = error && error.message;
+        if (/登录/.test(msg || "")) {
           store.clearSession();
+          this.setData({
+            currentUser: GUEST_USER,
+            showLoginModal: true
+          });
+          return;
         }
-
         wx.showToast({
-          title: error.message || "提交失败",
+          title: msg || "提交失败",
           icon: "none"
         });
       })

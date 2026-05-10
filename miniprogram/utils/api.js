@@ -1,23 +1,27 @@
 const store = require("./report-store");
 
-// 本地开发时指向 http://localhost:3300，发版前改回 production。
-const API_ENV = "production";
+/**
+ * 运行环境：develop（开发者工具/预览调试）→ local；trial/release → production。
+ * 无需发版前手改 API_ENV；本地调试需在微信开发者工具勾选「不校验合法域名」。
+ */
+function detectApiEnv() {
+  try {
+    const accountInfo = typeof wx.getAccountInfoSync === "function" ? wx.getAccountInfoSync() : null;
+    const envVersion = accountInfo && accountInfo.miniProgram && accountInfo.miniProgram.envVersion;
+    return envVersion === "develop" ? "local" : "production";
+  } catch (e) {
+    return "production";
+  }
+}
+
+const API_ENV = detectApiEnv();
 const BASE_URL_MAP = {
   local: "http://localhost:3300",
   production: "https://safe.luishou.xyz"
 };
-const BASE_URL = BASE_URL_MAP[API_ENV];
+const BASE_URL = BASE_URL_MAP[API_ENV] || BASE_URL_MAP.production;
 
 function resolveBaseUrl() {
-  try {
-    const app = getApp();
-    const appBaseUrl = app && app.globalData && app.globalData.baseUrl;
-    if (appBaseUrl) {
-      return appBaseUrl;
-    }
-  } catch (error) {
-    // ignore and fallback
-  }
   return BASE_URL;
 }
 
@@ -49,7 +53,6 @@ function request(options) {
 
         if (res.statusCode === 401) {
           store.clearSession();
-          wx.reLaunch({ url: "/pages/index/index" });
           reject(new Error("登录已失效，请重新授权"));
           return;
         }
@@ -57,6 +60,46 @@ function request(options) {
         reject(new Error((res.data && res.data.message) || "请求失败"));
       },
       fail: reject
+    });
+  });
+}
+
+/**
+ * wx.login + /api/auth/wechat-login，写入 store，返回当前用户对象
+ * @param {{ nickName: string, avatarUrl?: string }} userInfo
+ */
+function loginWithWeChat(userInfo) {
+  return new Promise((resolve, reject) => {
+    wx.login({
+      success: (res) => {
+        if (!res.code) {
+          reject(new Error("未拿到微信登录 code"));
+          return;
+        }
+        request({
+          url: "/api/auth/wechat-login",
+          method: "POST",
+          data: { code: res.code, userInfo }
+        })
+          .then((result) => {
+            if (!result || !result.token || !result.user) {
+              reject(new Error("登录响应无效"));
+              return;
+            }
+            store.setToken(result.token);
+            store.setCurrentUser({
+              id: result.user.id,
+              name: result.user.nickname,
+              avatarUrl: result.user.avatarUrl,
+              manageSections: Array.isArray(result.user.manageSections)
+                ? result.user.manageSections
+                : []
+            });
+            resolve(store.getCurrentUser());
+          })
+          .catch(reject);
+      },
+      fail: () => reject(new Error("微信登录失败"))
     });
   });
 }
@@ -82,12 +125,18 @@ function uploadFile(filePath) {
           return;
         }
 
+        if (res.statusCode === 401) {
+          store.clearSession();
+          reject(new Error("登录已失效，请重新授权"));
+          return;
+        }
+
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(data);
           return;
         }
 
-        reject(new Error(data.message || "上传失败"));
+        reject(new Error((data && data.message) || "上传失败"));
       },
       fail: reject
     });
@@ -129,6 +178,7 @@ module.exports = {
   BASE_URL,
   BASE_URL_MAP,
   request,
+  loginWithWeChat,
   uploadFile,
   adminFetchRecords,
   adminFetchStats,

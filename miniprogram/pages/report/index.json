@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "隐患上报"
+  "navigationBarTitleText": "隐患上报",
+  "usingComponents": {
+    "login-modal": "/components/login-modal/login-modal"
+  }
 }
